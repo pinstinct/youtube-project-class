@@ -27,8 +27,8 @@ def get_search_list_from_youtube(keyword):
 
 def search(request):
     videos = []
-    if request.method == 'POST':
-        keyword = request.POST['keyword']
+    keyword = request.GET.get('keyword', '').strip()
+    if keyword != '':
         item_dict = get_search_list_from_youtube(keyword)
         for item in item_dict:
             youtube_id = item['id']['videoId']
