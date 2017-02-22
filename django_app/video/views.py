@@ -1,65 +1,51 @@
+import json
+
 import requests
 from dateutil.parser import parse
 from django.shortcuts import render
 
-from youtube.settings import content
-from .form import SearchForm
-from .models import VideoInfo
+from utils.settings import get_setting
+from .models import Video
 
 
-def get_search_list_from_youtube(q):
+def get_search_list_from_youtube(keyword):
+    youtube_api_key = get_setting()['youtube']['API_KEY']
     payload = {
         'part': 'snippet',
-        'q': q,
+        'q': keyword,
         'type': 'video',
-        'maxResults': 5,
-        'key': content['youtube']['API_KEY'],
+        'maxResults': 30,
+        'key': youtube_api_key,
     }
     r = requests.get('https://www.googleapis.com/youtube/v3/search', params=payload)
-    raw_dic = r.json()
-    items = raw_dic['items']
-    result = []
-    for item in items:
-        title = item['snippet']['title']
-        video_id = item['id']['videoId']
-        published_date_str = item['snippet']['publishedAt']
-        published_date = parse(published_date_str)
-        info = {
-            'title': title,
-            'video_id': video_id,
-            'published_date': published_date,
-        }
-        result.append(info)
-    return result
+
+    result_dic = r.json()
+    items = result_dic['items']
+
+    return items
 
 
-def search_youtube(request):
+def search(request):
     if request.method == 'POST':
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            q = request.POST['search']
-            items = get_search_list_from_youtube(q)
-            for item in items:
-                title = item['title']
-                video_id = item['video_id']
-                published_date = item['published_date']
-                VideoInfo.objects.get_or_create(
-                    video_id=video_id,
-                    title=title,
-                    published_date=published_date,
-                )
-            search_result = VideoInfo.objects.filter(title__contains=q).values_list('title', flat=True)
-            video_url = VideoInfo.objects.filter(title__contains=q).values_list('video_id', flat=True)
-            context = {
-                'form': form,
-                'search_result': search_result,
-                'video_id': video_url,
+        keyword = request.POST['keyword']
+        items = get_search_list_from_youtube(keyword)
+        for item in items:
+            youtube_id = item['id']['videoId']
+            title = item['snippet']['title']
+            description = item['snippet']['description']
+            published_date_str = item['snippet']['publishedAt']
+            published_date = parse(published_date_str)
+            defaults = {
+                'title': title,
+                'description': description,
+                'published_date': published_date
             }
-        return render(request, 'video/search.html', context)
-
-    else:
-        form = SearchForm()
+            Video.objects.get_or_create(
+                youtube_id=youtube_id,
+                defaults=defaults
+            )
+    videos = Video.objects.all()
     context = {
-        'form': form,
+        'videos': videos,
     }
     return render(request, 'video/search.html', context)

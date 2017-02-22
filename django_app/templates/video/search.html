@@ -1,26 +1,19 @@
 {% extends 'common/base.html' %}
 
 {% block content %}
-  <div style="display: inline-block">
-    <form action="" method="POST" class="navbar-form navbar-left">{% csrf_token %}
-      <div class="form-group" >{{ form }}</div>
-      <button type="submit" class="btn btn-default navbar-btn">Search</button>
-    </form>
-  </div>
-  <div>
-    <ul class="list-group">
-    {% for item in search_result %}
-      {% for id in video_id %}
-      <li class="list-group-item">{{ item }}</li>
-      <div style="position:relative;height:0;padding-bottom:56.25%"
-           class="embed-responsive embed-responsive-16by9">
-      <iframe src="https://www.youtube.com/embed/{{ id }}"
-              width="480" height="270" frameborder="0" </iframe>
-      </iframe>
-      </div>
-      {% endfor %}
-    {% endfor %}
-    </ul>
-    
-  </div>
+<form action="" method="POST">{% csrf_token %}
+	<input type="text" name="keyword">
+	<button type="submit">Search</button>
+</form>
+
+<ul>
+	<li>총 {{ videos.count }}개</li>
+	{% for video in videos %}
+	<li>
+		<a href="https://www.youtube.com/watch?v={{ video.youtube_id }}">{{ video.title }}</a>
+		<p>{{ video.description }}</p>
+		<p>{{ video.published_date}}</p>
+	</li>
+	{% endfor %}
+</ul>
 {% endblock %}
