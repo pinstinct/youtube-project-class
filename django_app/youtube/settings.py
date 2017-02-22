@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'video.apps.VideoConfig',
+    'member.apps.MemberConfig',
 ]
 
 MIDDLEWARE = [
