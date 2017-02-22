@@ -25,4 +25,24 @@
     {% endfor %}
   </div>
 </div>
+
+<div class="btn-group btn-group-justified" role="group" >
+  {% if prev_page %}
+  <form action=""
+        style="display: inline" >
+    <input type="hidden" name="keyword" value="{{ keyword }}">
+    <input type="hidden" name="page_token" value="{{ prev_page }}">
+    <button type="submit" class="btn btn-default btn-lg">Previous</button>
+  </form>
+  {% endif %}
+  
+  {% if next_page %}
+  <form action=""
+        style="display: inline">
+    <input type="hidden" name="keyword" value="{{ keyword }}">
+    <input type="hidden" name="page_token" value="{{ next_page }}">
+    <button type="submit" class="btn btn-default btn-lg">Next</button>
+  </form>
+  {% endif %}
+</div>
 {% endblock %}
