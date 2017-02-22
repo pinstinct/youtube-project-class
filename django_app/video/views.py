@@ -26,25 +26,26 @@ def get_search_list_from_youtube(keyword):
 
 
 def search(request):
+    videos = []
     if request.method == 'POST':
         keyword = request.POST['keyword']
-        items = get_search_list_from_youtube(keyword)
-        for item in items:
+        item_dict = get_search_list_from_youtube(keyword)
+        for item in item_dict:
             youtube_id = item['id']['videoId']
+            thumbnail = item['snippet']['thumbnails']['high']['url']
             title = item['snippet']['title']
             description = item['snippet']['description']
             published_date_str = item['snippet']['publishedAt']
             published_date = parse(published_date_str)
-            defaults = {
+
+            item_dict = {
+                'youtube_id': youtube_id,
+                'thumbnail': thumbnail,
                 'title': title,
                 'description': description,
-                'published_date': published_date
+                'published_date': published_date,
             }
-            Video.objects.get_or_create(
-                youtube_id=youtube_id,
-                defaults=defaults
-            )
-    videos = Video.objects.all()
+            videos.append(item_dict)
     context = {
         'videos': videos,
     }
