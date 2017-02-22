@@ -8,10 +8,19 @@
     </form>
   </div>
   <div>
-    <ul>
+    <ul class="list-group">
     {% for item in search_result %}
-    <li>{{ item }}</li>
+      {% for id in video_id %}
+      <li class="list-group-item">{{ item }}</li>
+      <div style="position:relative;height:0;padding-bottom:56.25%"
+           class="embed-responsive embed-responsive-16by9">
+      <iframe src="https://www.youtube.com/embed/{{ id }}"
+              width="480" height="270" frameborder="0" </iframe>
+      </iframe>
+      </div>
+      {% endfor %}
     {% endfor %}
     </ul>
+    
   </div>
 {% endblock %}

@@ -12,7 +12,7 @@ def get_search_list_from_youtube(q):
         'part': 'snippet',
         'q': q,
         'type': 'video',
-        'maxResults': 50,
+        'maxResults': 5,
         'key': content['youtube']['API_KEY'],
     }
     r = requests.get('https://www.googleapis.com/youtube/v3/search', params=payload)
@@ -43,15 +43,17 @@ def search_youtube(request):
                 title = item['title']
                 video_id = item['video_id']
                 published_date = item['published_date']
-                VideoInfo.objects.create(
+                VideoInfo.objects.get_or_create(
                     video_id=video_id,
                     title=title,
                     published_date=published_date,
                 )
             search_result = VideoInfo.objects.filter(title__contains=q).values_list('title', flat=True)
+            video_url = VideoInfo.objects.filter(title__contains=q).values_list('video_id', flat=True)
             context = {
                 'form': form,
-                'search_result': search_result
+                'search_result': search_result,
+                'video_id': video_url,
             }
         return render(request, 'video/search.html', context)
 
