@@ -1,6 +1,7 @@
 import requests
 from dateutil.parser import parse
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 
 from member.models import BookmarkVideo
@@ -99,6 +100,7 @@ def bookmark_toggle(request):
         request.user.bookmarkvideo_set.create(
             video=video
         )
+
     if request.method == 'POST':
         title = request.POST['title']
         description = request.POST['description']
@@ -122,7 +124,18 @@ def bookmark_toggle(request):
 def bookmark_list(request):
     # .all() 하면 데이터베이스에 계속 쿼리를 날리므로,
     # select_related()를 해주면 속도상 이점이 있다.
-    bookmarks = request.user.bookmarkvideo_set.select_related('video')
+    all_bookmarks = request.user.bookmarkvideo_set.select_related('video')
+
+    # 전체 페이지를
+    paginator = Paginator(all_bookmarks, 5)
+    page = request.GET.get('page')
+
+    try:
+        bookmarks = paginator.page(page)
+    except PageNotAnInteger:
+        bookmarks = paginator.page(1)
+    except EmptyPage:
+        bookmarks = paginator.page(paginator.num_pages)
 
     context = {
         'bookmarks': bookmarks,

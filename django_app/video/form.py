@@ -3,9 +3,7 @@ from django import forms
 from video.models import Video
 
 
-class BookmarkForm(forms.ModelForm):
+class VideoForm(forms.ModelForm):
     class Meta:
         model = Video
-        fields = (
-            'bookmark',
-        )
+        fields = '__all__'
