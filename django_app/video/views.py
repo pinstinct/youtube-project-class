@@ -107,8 +107,10 @@ def bookmark_add(request):
 @login_required
 def bookmark_list(request):
     # .all() 하면 데이터베이스에 계속 쿼리를 날리므로,
-    # selected_realted()를 해주면 속도상 이점이 있다.
+    # select_related()를 해주면 속도상 이점이 있다.
     bookmarks = request.user.bookmarkvideo_set.select_related('video')
+
+    # check_bookmark = request.user.BookmarkVideo.objects.filter(title=keyword).exists()
     context = {
         'bookmarks': bookmarks,
     }

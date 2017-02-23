@@ -7,7 +7,7 @@
         {% for bookmark in bookmarks %}
         <img src="{{ bookmark.video.url_thumbnail }}" alt="">
         <div class="caption">
-          <a href="">{{ bookmark.video.title }}</a>
+          <a href="https://www.youtube.com/watch?v={{ bookmark.video.youtube_id}}">{{ bookmark.video.title }}</a>
           <p>{{ bookmark.video.description }}</p>
           <p>게시일자 : {{ bookmark.video.published_date}}</p>
           <p>북마크일자 : {{ bookmark.create_date}}</p>
