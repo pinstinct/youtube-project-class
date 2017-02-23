@@ -3,6 +3,7 @@ from dateutil.parser import parse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from member.models import BookmarkVideo
 from utils.settings import get_setting
 from video.models import Video
 
@@ -13,7 +14,7 @@ def search_from_youtube(keyword, page_token=None):
         'part': 'snippet',
         'q': keyword,
         'type': 'video',
-        'maxResults': 1,
+        'maxResults': 5,
         'key': youtube_api_key,
     }
     if page_token:
@@ -53,6 +54,11 @@ def search(request):
             description = item['snippet']['description']
             published_date_str = item['snippet']['publishedAt']
             published_date = parse(published_date_str)
+            # 이미 북마크에 추가된 영상인지 판단
+            is_exist = BookmarkVideo.objects.filter(
+                user=request.user,
+                video__youtube_id=youtube_id
+            ).exists()
 
             item_dict = {
                 'youtube_id': youtube_id,
@@ -60,23 +66,15 @@ def search(request):
                 'title': title,
                 'description': description,
                 'published_date': published_date,
+                'is_exist': is_exist,
             }
             videos.append(item_dict)
     return render(request, 'video/search.html', context)
 
 
 @login_required
-def bookmark_add(request):
-    if request.method == 'POST':
-        title = request.POST['title']
-        description = request.POST['description']
-        youtube_id = request.POST['youtube_id']
-        url_thumbnail = request.POST['url_thumbnail']
-        published_date_str = request.POST['published_date']
-        print(published_date_str)
-        published_date = parse(published_date_str)
-        prev_path = request.POST['path']
-
+def bookmark_toggle(request):
+    def get_or_create_video_and_add_bookmark():
         defaults = {
             'title': title,
             'description': description,
@@ -101,6 +99,22 @@ def bookmark_add(request):
         request.user.bookmarkvideo_set.create(
             video=video
         )
+    if request.method == 'POST':
+        title = request.POST['title']
+        description = request.POST['description']
+        youtube_id = request.POST['youtube_id']
+        url_thumbnail = request.POST['url_thumbnail']
+        published_date_str = request.POST['published_date']
+        print(published_date_str)
+        published_date = parse(published_date_str)
+        prev_path = request.POST['path']
+
+        exist_bookmark_list = request.user.bookmarkvideo_set.filter(
+            video__youtube_id=youtube_id)
+        if exist_bookmark_list:
+            exist_bookmark_list.delete()
+        else:
+            get_or_create_video_and_add_bookmark()
         return redirect(prev_path)
 
 
@@ -110,7 +124,6 @@ def bookmark_list(request):
     # select_related()를 해주면 속도상 이점이 있다.
     bookmarks = request.user.bookmarkvideo_set.select_related('video')
 
-    # check_bookmark = request.user.BookmarkVideo.objects.filter(title=keyword).exists()
     context = {
         'bookmarks': bookmarks,
     }

@@ -22,5 +22,9 @@ class BookmarkVideo(models.Model):
     # --fake 옵션을 주어 migration
     # $./manage.py migrate member --fake
     # db_table은 만들어져 있는 db_table 이름 필드이름과 동일하게 한다.
-    # class Meta:
+    class Meta:
+        unique_together = (
+            ('user', 'video'),
+        )
     #     db_table = 'member_myuser_bookmark_videos'
+
