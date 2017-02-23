@@ -1,5 +1,11 @@
 from django import forms
 
+from video.models import Video
 
-class SearchForm(forms.Form):
-    search = forms.CharField(max_length=50)
+
+class BookmarkForm(forms.ModelForm):
+    class Meta:
+        model = Video
+        fields = (
+            'bookmark',
+        )

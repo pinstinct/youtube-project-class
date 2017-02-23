@@ -7,10 +7,12 @@
     <span class="input-group-btn">
       <button type="submit" class="btn btn-default">Search</button>
     </span>
+    <p><a href="{% url 'video:bookmark_list'%}" class="btn btn-primary">My Bookmark</a></p>
   </div>
 </form>
 
 <div class="row">
+  <a href=""></a>
   <div class="col-sm-12 col-md-0">
     {% for video in videos %}
     <div class="thumbnail">
@@ -19,17 +21,27 @@
         <h4><a href="https://www.youtube.com/watch?v={{ video.youtube_id }}">{{ video.title }}</a></h4>
         <p>{{ video.description }}</p>
         <p>{{ video.published_date}}</p>
-        <p><a href="#" class="btn btn-primary" role="button">Button</a></p>
+        <p>
+        <form action="{% url 'video:bookmark_add' %}" method="POST">{% csrf_token %}
+          <input type="hidden" name="title" value="{{ video.title }}">
+          <input type="hidden" name="description" value="{{ video.description }}">
+          <input type="hidden" name="published_date" value="{{ video.published_date|date:'c' }}">
+          <input type="hidden" name="youtube_id" value="{{ video.youtube_id }}">
+          <input type="hidden" name="url_thumbnail" value="{{ video.url_thumbnail }}">
+          <button type="submit">Add Bookmark</button>
+          <input type="hidden" name="path" value="{{ request.get_full_path }}">
+        </form>
+        </p>
       </div>
     </div>
     {% endfor %}
   </div>
 </div>
 
-<div class="btn-group btn-group-justified" role="group" >
+<div class="btn-group btn-group-justified" role="group">
   {% if prev_page %}
   <form action=""
-        style="display: inline" >
+        style="display: inline">
     <input type="hidden" name="keyword" value="{{ keyword }}">
     <input type="hidden" name="page_token" value="{{ prev_page }}">
     <button type="submit" class="btn btn-default btn-lg">Previous</button>

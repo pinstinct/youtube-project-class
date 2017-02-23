@@ -1,0 +1,19 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-12 col-md-0">
+    <div class="thumbnail">
+        {% for bookmark in bookmarks %}
+        <img src="{{ bookmark.video.url_thumbnail }}" alt="">
+        <div class="caption">
+          <a href="">{{ bookmark.video.title }}</a>
+          <p>{{ bookmark.video.description }}</p>
+          <p>게시일자 : {{ bookmark.video.published_date}}</p>
+          <p>북마크일자 : {{ bookmark.create_date}}</p>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
